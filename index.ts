@@ -1,6 +1,7 @@
 import express, { Response } from "express";
 const { google } = require("googleapis");
 import "dotenv/config";
+import { v4 as uuidv4 } from "uuid";
 
 const app = express();
 
@@ -54,6 +55,13 @@ const event = {
     dateTime: "2022-11-10T10:00:00-07:00",
     timeZone: "Asia/Kolkata",
   },
+  colorId: 1,
+  conferenceData: {
+    createRequest: {
+      requestId: uuidv4(),
+    },
+  },
+  attendees: [{ email: "elraghymohamed@yahoo.com" }],
 };
 
 app.get("/create-event", async (req, res: Response) => {
@@ -61,21 +69,20 @@ app.get("/create-event", async (req, res: Response) => {
     const result = await calendar.events.insert({
       calendarId: "primary",
       auth: oauth2Client,
+      conferenceDataVersion: 1,
       resource: event,
     });
 
     res.send({
       status: 200,
       message: "Event created",
-      data: result.data,
+      link: result.data.hangoutLink,
     });
   } catch (err) {
     console.log(err);
     res.send(err);
   }
 });
-
-//* Adding Google Meet Link
 
 app.listen(port, () => {
   console.log(`server listening on port ${port}`);
