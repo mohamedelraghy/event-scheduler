@@ -1,6 +1,8 @@
 import express from "express";
 const { google } = require("googleapis");
 import "dotenv/config";
+import { describe } from "node:test";
+import { endianness } from "node:os";
 
 const app = express();
 
@@ -33,6 +35,49 @@ app.get("/auth/redirect", async (req, res) => {
   oauth2Client.setCredentials(token);
   res.send("Authentication successful! Please return to the console.");
 });
+
+// * initialize The Google Calendar API
+const calendar = google.calendar({
+  version: "v3",
+  auth: oauth2Client,
+});
+
+const event = {
+  summary: "Tech Talk with EL-Raghy",
+  location: "Google Meet",
+
+  description: "Demo event for EL-Raghy",
+  start: {
+    dateTime: "2022-11-10T09:00:00-07:00",
+    timeZone: "Asia/Kolkata",
+  },
+  end: {
+    dateTime: "2022-11-10T10:00:00-07:00",
+    timeZone: "Asia/Kolkata",
+  },
+};
+
+app.get("/create-event", async (req, res) => {
+  try {
+    const res = await calendar.events.insert({
+      calendarId: "primary",
+      auth: oauth2Client,
+      resource: event,
+    });
+
+    res.send({
+      status: 200,
+      message: "Event created successfully",
+      data: res.data,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send(err);
+  }
+});
+
+
+
 
 app.listen(port, () => {
   console.log(`server listening on port ${port}`);
