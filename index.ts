@@ -1,8 +1,6 @@
-import express from "express";
+import express, { Response } from "express";
 const { google } = require("googleapis");
 import "dotenv/config";
-import { describe } from "node:test";
-import { endianness } from "node:os";
 
 const app = express();
 
@@ -31,8 +29,9 @@ app.get("/auth", (req, res) => {
 });
 
 app.get("/auth/redirect", async (req, res) => {
-  const { token } = await oauth2Client.getToken(req.query.code as string);
-  oauth2Client.setCredentials(token);
+  const { tokens } = await oauth2Client.getToken(req.query.code);
+  console.log({ tokens });
+  oauth2Client.setCredentials(tokens);
   res.send("Authentication successful! Please return to the console.");
 });
 
@@ -57,9 +56,9 @@ const event = {
   },
 };
 
-app.get("/create-event", async (req, res) => {
+app.get("/create-event", async (req, res: Response) => {
   try {
-    const res = await calendar.events.insert({
+    const result = await calendar.events.insert({
       calendarId: "primary",
       auth: oauth2Client,
       resource: event,
@@ -67,8 +66,8 @@ app.get("/create-event", async (req, res) => {
 
     res.send({
       status: 200,
-      message: "Event created successfully",
-      data: res.data,
+      message: "Event created",
+      data: result.data,
     });
   } catch (err) {
     console.log(err);
@@ -76,8 +75,7 @@ app.get("/create-event", async (req, res) => {
   }
 });
 
-
-
+//* Adding Google Meet Link
 
 app.listen(port, () => {
   console.log(`server listening on port ${port}`);
