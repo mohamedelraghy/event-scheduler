@@ -48,11 +48,11 @@ const event = {
 
   description: "Demo event for EL-Raghy",
   start: {
-    dateTime: "2022-11-10T09:00:00-07:00",
+    dateTime: "2024-09-09T09:00:00-07:00",
     timeZone: "Asia/Kolkata",
   },
   end: {
-    dateTime: "2022-11-10T10:00:00-07:00",
+    dateTime: "2024-09-10T10:00:00-07:00",
     timeZone: "Asia/Kolkata",
   },
   colorId: 1,
@@ -70,6 +70,7 @@ app.get("/create-event", async (req, res: Response) => {
       calendarId: "primary",
       auth: oauth2Client,
       conferenceDataVersion: 1,
+      sendUpdates: "all",
       resource: event,
     });
 
